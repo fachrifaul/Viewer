@@ -9,6 +9,7 @@ class PhotosController: UICollectionViewController {
     var dataSourceType: DataSourceType
     var viewerController: ViewerController?
     var optionsController: OptionsController?
+    var enableDragToDismiss: Bool = true
 
     func numberOfItems() -> Int {
         var count = 0
@@ -58,6 +59,8 @@ class PhotosController: UICollectionViewController {
             selectTapRecognizer.allowedPressTypes = [NSNumber(value: UIPress.PressType.select.rawValue)]
             self.collectionView?.addGestureRecognizer(selectTapRecognizer)
         #endif
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Config", style: .plain, target: self, action: #selector(showConfiguration))
     }
 
     #if os(tvOS)
@@ -111,6 +114,24 @@ class PhotosController: UICollectionViewController {
 
         return photo
     }
+    
+    @objc func showConfiguration() {
+        let alert = UIAlertController(title: "Configuration", message: nil, preferredStyle: .actionSheet)
+        
+        let messageDragToDismiss = enableDragToDismiss ? "Disabled" : "Enabled"
+        alert.addAction(
+            UIAlertAction(title: "\(messageDragToDismiss) drag to dismiss", style: .default, handler: { [weak self ](_) in
+                guard let ss = self else {return }
+                ss.enableDragToDismiss = !ss.enableDragToDismiss
+            })
+        )
+        
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: { (_) in
+            print("User click Dismiss button")
+        }))
+        
+        self.present(alert, animated: true)
+    }
 }
 
 extension PhotosController {
@@ -139,6 +160,7 @@ extension PhotosController {
         self.viewerController = ViewerController(initialIndexPath: indexPath, collectionView: collectionView)
         self.viewerController!.dataSource = self
         self.viewerController!.delegate = self
+        self.viewerController!.enableDragToDismiss = enableDragToDismiss
 
         #if os(iOS)
             let headerView = HeaderView()

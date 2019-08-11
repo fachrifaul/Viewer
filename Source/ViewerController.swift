@@ -48,6 +48,11 @@ public class ViewerController: UIViewController {
 
     public weak var delegate: ViewerControllerDelegate?
     public weak var dataSource: ViewerControllerDataSource?
+    
+    /**
+     Used for doing a disable or enable drag to dismiss
+     */
+    public var enableDragToDismiss: Bool = true
 
     /**
      Flag that tells the viewer controller to autoplay videos on focus
@@ -306,9 +311,11 @@ extension ViewerController {
             viewableController.delegate = self
             viewableController.dataSource = self
 
-            let gesture = UIPanGestureRecognizer(target: self, action: #selector(ViewerController.panAction(_:)))
-            gesture.delegate = self
-            viewableController.imageView.addGestureRecognizer(gesture)
+            if enableDragToDismiss {
+                let gesture = UIPanGestureRecognizer(target: self, action: #selector(ViewerController.panAction(_:)))
+                gesture.delegate = self
+                viewableController.imageView.addGestureRecognizer(gesture)
+            }
 
             self.viewableControllerCache.setObject(viewableController, forKey: indexPath.description as NSString)
         }
